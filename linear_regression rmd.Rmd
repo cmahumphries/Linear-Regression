@@ -1,0 +1,88 @@
+---
+title: "Mini Project Linear Regression"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exercise: least squares regression
+
+Use the /states.rds/ data set.
+
+Fit a model predicting energy consumed per capita (energy) from the percentage of residents living in metropolitan areas (metro). 
+
+Be sure to: 
+
+  1. Examine/plot the data before fitting the model
+  2. Print and interpret the model `summary'
+  3. `plot' the model to look for deviations from modeling assumptions
+  
+
+###Load states.rds into a data frame and examine it's contents
+```{r}
+states <- readRDS("states.rds")
+head(states)
+```
+
+###Examine and plot the data
+```{r}
+states.model1 <- subset(na.omit(states), select = c("metro", "energy"))
+summary(states.model1)
+plot(states.model1)
+cor(states.model1)
+```
+**Metro and energy are not strongly correlated with a value of -.311**
+
+###Print and interpret the model summary
+```{r}
+model1 <- lm(energy ~ metro, data = states.model1)
+summary(model1)
+```
+**The P value for metro of .031 indicates it is a good predictor of energy, but with an R squared value of .078 there is a lot of error and not a good predictive model**
+
+###Plot the model
+```{r}
+plot(model1)
+```
+
+###Select one or more additional predictors to add to your model and repeat steps 1-3.
+
+###Add density and income to the model
+```{r}
+states.model2 <- subset(na.omit(states), select = c("metro", "density", "income", "energy"))
+summary(states.model2)
+plot(states.model2)
+cor(states.model2)
+```
+**None of the variables are highly correlated with energy**
+
+```{r}
+model2 <- lm(energy ~ metro + density + income, data = states.model2)
+summary(model2)
+anova(model1, model2)
+```
+**In this model, none of the variables are good predictors of energy. Although our error has improved (0.077 - 0.149) it is still weak, and this is not a good model either. Based on the ANOVA test results, the second model is not significantly better than the first**
+
+
+## Exercise: interactions and factors
+
+Use the states data set.
+
+##1. Add on to the regression equation that you created in exercise 1 by generating an interaction term and testing the interaction.
+
+```{r}
+model3 <- lm(energy ~ metro * density, data = states)
+coef(summary(model3))
+```
+**None of these interactions appear to be significant**
+
+
+##2. Try adding region to the model. Are there significant differences across the four regions?
+
+```{r}
+model4 <- lm(energy ~ metro * density + region, data = states)
+anova(model4)
+```
+**There do not appear to be significant differences across regions**
